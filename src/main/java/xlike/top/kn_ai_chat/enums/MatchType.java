@@ -10,6 +10,7 @@ public enum MatchType {
      */
     EQUALS,
 
+    
     /**
      * 包含匹配（忽略大小写）
      */
