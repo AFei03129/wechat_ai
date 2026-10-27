@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestClientResponseException;
 import xlike.top.kn_ai_chat.domain.AiConfig;
 
 import java.io.File;
@@ -94,11 +95,17 @@ public class SiliconFlowService {
     }
 
     public Optional<String> transcribeAudio(File audioFile, String externalUserId) {
+        if (!audioFile.isFile() || audioFile.length() == 0 || audioFile.length() > 50L * 1024 * 1024) {
+            logger.warn("ASR 音频文件无效或超过 50MB，跳过上传。");
+            return Optional.empty();
+        }
         AiConfig aiConfig = userConfigService.getAiConfig(externalUserId);
         String url = aiConfig.getSfBaseUrl() + "/audio/transcriptions";
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
         headers.setBearerAuth(aiConfig.getAiApiKey());
+        String traceId = UUID.randomUUID().toString();
+        headers.set("X-Trace-Id", traceId);
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("file", new FileSystemResource(audioFile));
         body.add("model", aiConfig.getSfSttModel());
@@ -111,6 +118,12 @@ public class SiliconFlowService {
             } else {
                 return Optional.empty();
             }
+        } catch (RestClientResponseException e) {
+            String providerTraceId = e.getResponseHeaders() == null ? null
+                    : e.getResponseHeaders().getFirst("x-siliconcloud-trace-id");
+            logger.error("ASR 请求失败: status={}, traceId={}, providerTraceId={}, model={}, bytes={}",
+                    e.getStatusCode().value(), traceId, providerTraceId, aiConfig.getSfSttModel(), audioFile.length());
+            return Optional.empty();
         } catch (Exception e) {
             logger.error("调用 SiliconFlow ASR API时发生异常", e);
             return Optional.empty();
