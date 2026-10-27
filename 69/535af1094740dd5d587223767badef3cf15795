@@ -1,0 +1,21 @@
+src/main/java/xlike/top/kn_ai_chat/service/SiliconFlowService.java
+  s_b3436153878fda::t_9314b20290cdc5 15,98-101,107-108,121-126,188
+src/main/java/xlike/top/kn_ai_chat/config/WeChatConfig.java
+  s_b3436153878fda::t_9314b20290cdc5 7-8,12,29-35,39
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.7",
+  "base_commit_sha": "69535af1094740dd5d587223767badef3cf15795",
+  "prompts": {},
+  "sessions": {
+    "s_b3436153878fda": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a17bdd-41e7-7e12-9388-a3f618c16c74",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "wangyongfei.0312 <wangyongfei.0312@jd.com>"
+    }
+  }
+}
